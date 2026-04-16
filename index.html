@@ -897,10 +897,10 @@
             let current = 0;
             const increment = Math.max(1, Math.ceil(target / 40));
 
-            const updateCounter = () => {
+            const updater = () => {
                 current += increment;
                 if (current >= target) {
-                    counter.textContent = target + (target === 99 ? "%" : "+");
+                    counter.textC = target + (target === 99 ? "%" : "+");
                 } else {
                     counter.textContent = current;
                     requestAnimationFrame(updateCounter);
