@@ -1,27 +1,914 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <title>E‑Commerce Demo</title>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>CloudStore | Modern AWS Demo</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
     <style>
-        body { font-family: Arial; margin: 0; padding: 20px; background: #f4f4f4; }
-        .container { max-width: 1200px; margin: auto; background: white; padding: 20px; }
-        h1 { color: #333; }
-        .product { border: 1px solid #ddd; padding: 10px; margin: 10px; display: inline-block; width: 200px; text-align: center; }
+        :root {
+            --bg: #f4f7fb;
+            --bg-soft: #eef3f9;
+            --surface: rgba(255, 255, 255, 0.78);
+            --surface-strong: #ffffff;
+            --text: #0f172a;
+            --muted: #64748b;
+            --primary: #2563eb;
+            --primary-strong: #1d4ed8;
+            --accent: #14b8a6;
+            --accent-soft: rgba(20, 184, 166, 0.12);
+            --border: rgba(15, 23, 42, 0.09);
+            --shadow-sm: 0 8px 24px rgba(15, 23, 42, 0.06);
+            --shadow-lg: 0 20px 60px rgba(15, 23, 42, 0.14);
+            --radius: 22px;
+            --radius-lg: 30px;
+            --max-width: 1180px;
+        }
+
+        body.dark {
+            --bg: #081120;
+            --bg-soft: #0d1728;
+            --surface: rgba(15, 23, 42, 0.72);
+            --surface-strong: #111c2e;
+            --text: #ecf2ff;
+            --muted: #94a3b8;
+            --primary: #60a5fa;
+            --primary-strong: #3b82f6;
+            --accent: #2dd4bf;
+            --accent-soft: rgba(45, 212, 191, 0.14);
+            --border: rgba(255, 255, 255, 0.08);
+            --shadow-sm: 0 8px 28px rgba(0, 0, 0, 0.28);
+            --shadow-lg: 0 24px 70px rgba(0, 0, 0, 0.38);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            font-family: "Inter", sans-serif;
+            color: var(--text);
+            background:
+                radial-gradient(circle at top left, rgba(37, 99, 235, 0.16), transparent 28%),
+                radial-gradient(circle at bottom right, rgba(20, 184, 166, 0.16), transparent 30%),
+                linear-gradient(180deg, var(--bg), var(--bg-soft));
+            min-height: 100vh;
+            transition: background 0.3s ease, color 0.3s ease;
+        }
+
+        a {
+            color: inherit;
+            text-decoration: none;
+        }
+
+        img {
+            max-width: 100%;
+            display: block;
+        }
+
+        .container {
+            width: min(var(--max-width), calc(100% - 2rem));
+            margin: 0 auto;
+        }
+
+        .topbar {
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            backdrop-filter: blur(16px);
+            background: rgba(255, 255, 255, 0.4);
+            border-bottom: 1px solid var(--border);
+        }
+
+        body.dark .topbar {
+            background: rgba(8, 17, 32, 0.5);
+        }
+
+        .navbar {
+            min-height: 76px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 1rem;
+        }
+
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: 0.85rem;
+            font-weight: 800;
+            letter-spacing: -0.03em;
+            font-size: 1.15rem;
+        }
+
+        .brand-mark {
+            width: 40px;
+            height: 40px;
+            border-radius: 14px;
+            display: grid;
+            place-items: center;
+            background: linear-gradient(135deg, var(--primary), var(--accent));
+            color: white;
+            box-shadow: var(--shadow-sm);
+            font-weight: 900;
+        }
+
+        .brand span {
+            color: var(--primary);
+        }
+
+        .nav-links {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .nav-links a {
+            color: var(--muted);
+            font-weight: 600;
+        }
+
+        .nav-links a:hover {
+            color: var(--text);
+        }
+
+        .nav-actions {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .btn,
+        .theme-toggle {
+            border: none;
+            cursor: pointer;
+            transition: 0.25s ease;
+            font-family: inherit;
+        }
+
+        .theme-toggle {
+            width: 46px;
+            height: 46px;
+            border-radius: 999px;
+            border: 1px solid var(--border);
+            background: var(--surface-strong);
+            color: var(--text);
+            box-shadow: var(--shadow-sm);
+        }
+
+        .btn {
+            padding: 0.95rem 1.35rem;
+            border-radius: 999px;
+            font-weight: 700;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.55rem;
+        }
+
+        .btn:hover,
+        .theme-toggle:hover,
+        .card:hover,
+        .feature:hover,
+        .testimonial:hover,
+        .pricing-card:hover {
+            transform: translateY(-4px);
+        }
+
+        .btn-primary {
+            background: var(--primary);
+            color: white;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .btn-primary:hover {
+            background: var(--primary-strong);
+        }
+
+        .btn-secondary {
+            background: var(--surface-strong);
+            color: var(--text);
+            border: 1px solid var(--border);
+        }
+
+        .hero {
+            padding: 5rem 0 3rem;
+            display: grid;
+            grid-template-columns: 1.1fr 0.9fr;
+            gap: 2rem;
+            align-items: center;
+        }
+
+        .eyebrow {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.45rem 0.8rem;
+            border-radius: 999px;
+            background: var(--accent-soft);
+            color: var(--accent);
+            font-size: 0.85rem;
+            font-weight: 800;
+            letter-spacing: 0.04em;
+            margin-bottom: 1.1rem;
+        }
+
+        .hero h1 {
+            font-size: clamp(2.5rem, 6vw, 5.4rem);
+            line-height: 0.98;
+            letter-spacing: -0.055em;
+            margin-bottom: 1rem;
+        }
+
+        .hero h1 .highlight {
+            color: var(--primary);
+        }
+
+        .hero p {
+            color: var(--muted);
+            font-size: 1.08rem;
+            max-width: 640px;
+            margin-bottom: 1.6rem;
+        }
+
+        .hero-actions {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.9rem;
+            margin-bottom: 1.8rem;
+        }
+
+        .hero-metrics {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1rem;
+        }
+
+        .metric {
+            padding: 1.1rem;
+            border-radius: 18px;
+            background: var(--surface);
+            border: 1px solid var(--border);
+            box-shadow: var(--shadow-sm);
+            backdrop-filter: blur(14px);
+        }
+
+        .metric strong {
+            display: block;
+            font-size: 1.35rem;
+            margin-bottom: 0.2rem;
+        }
+
+        .metric span {
+            color: var(--muted);
+            font-size: 0.92rem;
+        }
+
+        .hero-panel {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-lg);
+            padding: 1.4rem;
+            box-shadow: var(--shadow-lg);
+            backdrop-filter: blur(18px);
+        }
+
+        .hero-panel-top {
+            display: flex;
+            justify-content: space-between;
+            gap: 1rem;
+            align-items: center;
+            margin-bottom: 1.2rem;
+        }
+
+        .status-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.55rem 0.9rem;
+            border-radius: 999px;
+            background: rgba(34, 197, 94, 0.14);
+            color: #16a34a;
+            font-size: 0.9rem;
+            font-weight: 700;
+        }
+
+        body.dark .status-pill {
+            color: #4ade80;
+        }
+
+        .dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: currentColor;
+            box-shadow: 0 0 0 6px rgba(34, 197, 94, 0.12);
+        }
+
+        .panel-card {
+            border-radius: 22px;
+            padding: 1.2rem;
+            background: linear-gradient(135deg, var(--primary), var(--accent));
+            color: white;
+            box-shadow: var(--shadow-sm);
+            margin-bottom: 1rem;
+        }
+
+        .panel-card h3 {
+            font-size: 1.2rem;
+            margin-bottom: 0.45rem;
+        }
+
+        .stack {
+            display: grid;
+            gap: 0.85rem;
+        }
+
+        .stack-item {
+            padding: 1rem;
+            border-radius: 18px;
+            background: var(--surface-strong);
+            border: 1px solid var(--border);
+            display: flex;
+            justify-content: space-between;
+            gap: 1rem;
+            align-items: center;
+        }
+
+        .stack-item span {
+            color: var(--muted);
+            font-size: 0.95rem;
+        }
+
+        section {
+            padding: 2rem 0 4rem;
+        }
+
+        .section-head {
+            display: flex;
+            justify-content: space-between;
+            gap: 1rem;
+            align-items: end;
+            margin-bottom: 1.8rem;
+        }
+
+        .section-head h2 {
+            font-size: clamp(1.7rem, 3vw, 2.7rem);
+            line-height: 1.05;
+            letter-spacing: -0.04em;
+            margin-bottom: 0.5rem;
+        }
+
+        .section-head p {
+            color: var(--muted);
+            max-width: 720px;
+        }
+
+        .features-grid,
+        .products-grid,
+        .testimonials-grid,
+        .pricing-grid {
+            display: grid;
+            gap: 1.25rem;
+        }
+
+        .features-grid,
+        .products-grid,
+        .pricing-grid {
+            grid-template-columns: repeat(3, 1fr);
+        }
+
+        .testimonials-grid {
+            grid-template-columns: repeat(2, 1fr);
+        }
+
+        .feature,
+        .card,
+        .testimonial,
+        .pricing-card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 1.4rem;
+            box-shadow: var(--shadow-sm);
+            backdrop-filter: blur(12px);
+            transition: 0.25s ease;
+        }
+
+        .feature-icon {
+            width: 48px;
+            height: 48px;
+            display: grid;
+            place-items: center;
+            border-radius: 16px;
+            background: linear-gradient(135deg, var(--primary), var(--accent));
+            color: white;
+            font-weight: 900;
+            margin-bottom: 1rem;
+        }
+
+        .feature h3,
+        .card h3,
+        .pricing-card h3 {
+            margin-bottom: 0.65rem;
+            font-size: 1.15rem;
+        }
+
+        .feature p,
+        .card p,
+        .testimonial p,
+        .pricing-card p {
+            color: var(--muted);
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 0.38rem 0.75rem;
+            border-radius: 999px;
+            background: var(--accent-soft);
+            color: var(--accent);
+            font-size: 0.82rem;
+            font-weight: 800;
+            margin-bottom: 0.9rem;
+        }
+
+        .product-price,
+        .price {
+            font-size: 2rem;
+            font-weight: 900;
+            letter-spacing: -0.04em;
+            color: var(--primary);
+            margin: 0.6rem 0 1rem;
+        }
+
+        .product-meta {
+            display: flex;
+            gap: 0.65rem;
+            flex-wrap: wrap;
+            margin-bottom: 1rem;
+        }
+
+        .product-meta span {
+            font-size: 0.82rem;
+            padding: 0.3rem 0.65rem;
+            border-radius: 999px;
+            background: var(--bg-soft);
+            color: var(--muted);
+        }
+
+        ul.clean {
+            list-style: none;
+            margin: 1rem 0 1.2rem;
+            display: grid;
+            gap: 0.65rem;
+        }
+
+        ul.clean li {
+            color: var(--muted);
+            display: flex;
+            gap: 0.6rem;
+            align-items: flex-start;
+        }
+
+        ul.clean li::before {
+            content: "✓";
+            color: var(--accent);
+            font-weight: 800;
+        }
+
+        .testimonial-author {
+            margin-top: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.8rem;
+        }
+
+        .avatar {
+            width: 46px;
+            height: 46px;
+            border-radius: 50%;
+            display: grid;
+            place-items: center;
+            background: linear-gradient(135deg, var(--primary), var(--accent));
+            color: white;
+            font-weight: 800;
+        }
+
+        .cta-band {
+            padding: 2rem;
+            border-radius: 32px;
+            background: linear-gradient(135deg, var(--primary), var(--accent));
+            color: white;
+            box-shadow: var(--shadow-lg);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 1.2rem;
+            flex-wrap: wrap;
+        }
+
+        .cta-band p {
+            max-width: 720px;
+            opacity: 0.96;
+        }
+
+        footer {
+            padding: 1rem 0 2.5rem;
+            color: var(--muted);
+        }
+
+        .footer-row {
+            display: flex;
+            justify-content: space-between;
+            gap: 1rem;
+            flex-wrap: wrap;
+            padding-top: 1rem;
+            border-top: 1px solid var(--border);
+        }
+
+        @media (max-width: 1024px) {
+            .hero,
+            .features-grid,
+            .products-grid,
+            .pricing-grid,
+            .testimonials-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .hero-metrics {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 780px) {
+            .nav-links {
+                display: none;
+            }
+
+            .hero {
+                padding-top: 3rem;
+            }
+
+            .hero h1 {
+                font-size: clamp(2.2rem, 11vw, 3.7rem);
+            }
+
+            .section-head {
+                flex-direction: column;
+                align-items: start;
+            }
+
+            .cta-band {
+                text-align: left;
+            }
+        }
     </style>
 </head>
 <body>
-    <div class="container">
-        <h1>Welcome to Our E‑Commerce Store</h1>
-        <div class="product">
-            <h3>Product 1</h3>
-            <p>$19.99</p>
+    <header class="topbar">
+        <div class="container navbar">
+            <a href="#" class="brand">
+                <div class="brand-mark">C</div>
+                <div>Cloud<span>Store</span></div>
+            </a>
+
+            <nav class="nav-links">
+                <a href="#features">Features</a>
+                <a href="#products">Products</a>
+                <a href="#pricing">Pricing</a>
+                <a href="#reviews">Reviews</a>
+            </nav>
+
+            <div class="nav-actions">
+                <button class="theme-toggle" onclick="toggleTheme()" aria-label="Toggle theme">🌙</button>
+                <a href="#products" class="btn btn-secondary">Explore</a>
+                <a href="#pricing" class="btn btn-primary">Get Started</a>
+            </div>
         </div>
-        <div class="product">
-            <h3>Product 2</h3>
-            <p>$29.99</p>
+    </header>
+
+    <main class="container">
+        <section class="hero">
+            <div>
+                <div class="eyebrow">Deployment-ready storefront</div>
+                <h1>
+                    Make your <span class="highlight">AWS demo site</span>
+                    feel like a real product.
+                </h1>
+                <p>
+                    This refreshed landing page is built to look cleaner, more premium, and more trustworthy,
+                    with stronger sections, better hierarchy, richer cards, and a polished modern UI that works
+                    nicely on desktop and mobile.
+                </p>
+
+                <div class="hero-actions">
+                    <a href="#products" class="btn btn-primary">View Products</a>
+                    <a href="#features" class="btn btn-secondary">See Features</a>
+                </div>
+
+                <div class="hero-metrics">
+                    <div class="metric">
+                        <strong class="counter" data-target="99">0</strong>
+                        <span>Percent deployment confidence</span>
+                    </div>
+                    <div class="metric">
+                        <strong class="counter" data-target="24">0</strong>
+                        <span>Hour-ready demo turnaround</span>
+                    </div>
+                    <div class="metric">
+                        <strong class="counter" data-target="3">0</strong>
+                        <span>Core product tiers included</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="hero-panel">
+                <div class="hero-panel-top">
+                    <div>
+                        <div class="badge">Live rollout status</div>
+                        <h2 style="font-size: 1.45rem; letter-spacing: -0.03em;">Deployment overview</h2>
+                    </div>
+                    <div class="status-pill">
+                        <span class="dot"></span>
+                        Healthy
+                    </div>
+                </div>
+
+                <div class="panel-card">
+                    <h3>Zero-downtime release</h3>
+                    <p>Use this area to highlight your CI/CD flow, AWS pipeline usage, release safety, and production reliability.</p>
+                </div>
+
+                <div class="stack">
+                    <div class="stack-item">
+                        <div>
+                            <strong>Frontend UI</strong>
+                            <span>Responsive storefront experience</span>
+                        </div>
+                        <strong>Ready</strong>
+                    </div>
+                    <div class="stack-item">
+                        <div>
+                            <strong>Deployment</strong>
+                            <span>Push, verify, release</span>
+                        </div>
+                        <strong>Stable</strong>
+                    </div>
+                    <div class="stack-item">
+                        <div>
+                            <strong>Monitoring</strong>
+                            <span>Production visibility enabled</span>
+                        </div>
+                        <strong>Active</strong>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="features">
+            <div class="section-head">
+                <div>
+                    <h2>Why this version feels better</h2>
+                    <p>
+                        The page now has a stronger hero, more polished cards, better spacing, deeper sections,
+                        cleaner navigation, and a more product-like visual identity.
+                    </p>
+                </div>
+            </div>
+
+            <div class="features-grid">
+                <article class="feature">
+                    <div class="feature-icon">01</div>
+                    <h3>Stronger first impression</h3>
+                    <p>A bold hero section with clear actions helps the page immediately feel modern and intentional.</p>
+                </article>
+
+                <article class="feature">
+                    <div class="feature-icon">02</div>
+                    <h3>Better section hierarchy</h3>
+                    <p>Each block has more structure, so visitors can scan products, features, and messaging more easily.</p>
+                </article>
+
+                <article class="feature">
+                    <div class="feature-icon">03</div>
+                    <h3>Cleaner responsive design</h3>
+                    <p>The layout stacks smoothly on mobile while keeping a polished visual rhythm on larger screens.</p>
+                </article>
+            </div>
+        </section>
+
+        <section id="products">
+            <div class="section-head">
+                <div>
+                    <h2>Featured products</h2>
+                    <p>
+                        These sample cards are more complete now, with tags, clearer pricing, and feature bullets you can customize.
+                    </p>
+                </div>
+            </div>
+
+            <div class="products-grid">
+                <article class="card">
+                    <div class="badge">Starter</div>
+                    <h3>Cloud Basic</h3>
+                    <p>Perfect for lightweight projects that need a fast and dependable storefront experience.</p>
+                    <div class="product-price">$19</div>
+                    <div class="product-meta">
+                        <span>Responsive</span>
+                        <span>Fast setup</span>
+                        <span>Beginner friendly</span>
+                    </div>
+                    <ul class="clean">
+                        <li>Simple UI for quick demos.</li>
+                        <li>Clean layout and fast loading experience.</li>
+                        <li>Good starting point for small teams.</li>
+                    </ul>
+                    <a href="#" class="btn btn-primary">Choose Plan</a>
+                </article>
+
+                <article class="card">
+                    <div class="badge">Popular</div>
+                    <h3>Cloud Pro</h3>
+                    <p>A balanced option for demos that need stronger visuals, better structure, and more confidence.</p>
+                    <div class="product-price">$39</div>
+                    <div class="product-meta">
+                        <span>Best value</span>
+                        <span>Modern UI</span>
+                        <span>AWS-ready</span>
+                    </div>
+                    <ul class="clean">
+                        <li>Great for production-style showcase pages.</li>
+                        <li>More polished cards and content sections.</li>
+                        <li>Better fit for interview or portfolio demos.</li>
+                    </ul>
+                    <a href="#" class="btn btn-primary">Choose Plan</a>
+                </article>
+
+                <article class="card">
+                    <div class="badge">Advanced</div>
+                    <h3>Cloud Scale</h3>
+                    <p>Built for larger showcases where premium design and clearer communication matter most.</p>
+                    <div class="product-price">$79</div>
+                    <div class="product-meta">
+                        <span>Premium</span>
+                        <span>Scalable</span>
+                        <span>Showcase ready</span>
+                    </div>
+                    <ul class="clean">
+                        <li>Ideal for polished client or recruiter demos.</li>
+                        <li>Designed to look more product-grade.</li>
+                        <li>Best choice for high-impact presentation.</li>
+                    </ul>
+                    <a href="#" class="btn btn-primary">Choose Plan</a>
+                </article>
+            </div>
+        </section>
+
+        <section id="pricing">
+            <div class="section-head">
+                <div>
+                    <h2>Simple pricing section</h2>
+                    <p>
+                        If your current page is too basic, this extra section makes it feel more like a real SaaS or product landing page.
+                    </p>
+                </div>
+            </div>
+
+            <div class="pricing-grid">
+                <article class="pricing-card">
+                    <div class="badge">Free</div>
+                    <h3>Preview</h3>
+                    <div class="price">$0</div>
+                    <p>Best for showing the basic layout and initial storefront preview.</p>
+                    <ul class="clean">
+                        <li>Basic landing page.</li>
+                        <li>Simple product display.</li>
+                        <li>Good for first demos.</li>
+                    </ul>
+                    <a href="#" class="btn btn-secondary">Start Free</a>
+                </article>
+
+                <article class="pricing-card" style="border-color: rgba(37,99,235,0.28);">
+                    <div class="badge">Recommended</div>
+                    <h3>Team</h3>
+                    <div class="price">$29</div>
+                    <p>Ideal for building a more polished demo with stronger visual communication.</p>
+                    <ul class="clean">
+                        <li>Richer UI sections.</li>
+                        <li>Better visual hierarchy.</li>
+                        <li>Cleaner product presentation.</li>
+                    </ul>
+                    <a href="#" class="btn btn-primary">Select Team</a>
+                </article>
+
+                <article class="pricing-card">
+                    <div class="badge">Enterprise</div>
+                    <h3>Scale</h3>
+                    <div class="price">$99</div>
+                    <p>Built for a premium-looking experience with the strongest presentational impact.</p>
+                    <ul class="clean">
+                        <li>Premium section styling.</li>
+                        <li>Showcase-focused design.</li>
+                        <li>More credibility for demos.</li>
+                    </ul>
+                    <a href="#" class="btn btn-secondary">Talk to Sales</a>
+                </article>
+            </div>
+        </section>
+
+        <section id="reviews">
+            <div class="section-head">
+                <div>
+                    <h2>What makes it more realistic</h2>
+                    <p>
+                        Testimonials and proof-style blocks help the page feel more complete and less like a plain assignment file.
+                    </p>
+                </div>
+            </div>
+
+            <div class="testimonials-grid">
+                <article class="testimonial">
+                    <p>
+                        “This version feels much more polished. The page now looks like a real landing page instead of a basic HTML assignment.”
+                    </p>
+                    <div class="testimonial-author">
+                        <div class="avatar">NK</div>
+                        <div>
+                            <strong>Naveen</strong><br />
+                            <span style="color: var(--muted);">Developer demo review</span>
+                        </div>
+                    </div>
+                </article>
+
+                <article class="testimonial">
+                    <p>
+                        “The improved spacing, richer cards, and stronger hero section make the UI far easier to present in a GitHub project or deployment demo.”
+                    </p>
+                    <div class="testimonial-author">
+                        <div class="avatar">AWS</div>
+                        <div>
+                            <strong>Cloud Team</strong><br />
+                            <span style="color: var(--muted);">Deployment showcase</span>
+                        </div>
+                    </div>
+                </article>
+            </div>
+        </section>
+
+        <section>
+            <div class="cta-band">
+                <div>
+                    <h2 style="font-size: clamp(1.8rem, 4vw, 2.8rem); margin-bottom: 0.45rem;">Want it to look even more premium?</h2>
+                    <p>
+                        You can next add product images, icons, a real shopping flow, or AWS service badges to make the page even stronger.
+                    </p>
+                </div>
+                <a href="#top" class="btn btn-secondary" style="background: white; color: #111827;">Launch Demo</a>
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        <div class="container footer-row">
+            <p>© 2026 CloudStore. Built for polished AWS storefront demos.</p>
+            <p>Responsive UI · Better hierarchy · Modern design</p>
         </div>
-        <p>Deployed with <strong>zero downtime</strong> via AWS CodePipeline!</p>
-    </div>
+    </footer>
+
+    <script>
+        function toggleTheme() {
+            document.body.classList.toggle("dark");
+            const btn = document.querySelector(".theme-toggle");
+            btn.textContent = document.body.classList.contains("dark") ? "☀️" : "🌙";
+        }
+
+        const counters = document.querySelectorAll(".counter");
+
+        counters.forEach(counter => {
+            const target = Number(counter.dataset.target);
+            let current = 0;
+            const increment = Math.max(1, Math.ceil(target / 40));
+
+            const updateCounter = () => {
+                current += increment;
+                if (current >= target) {
+                    counter.textContent = target + (target === 99 ? "%" : "+");
+                } else {
+                    counter.textContent = current;
+                    requestAnimationFrame(updateCounter);
+                }
+            };
+
+            updateCounter();
+        });
+    </script>
 </body>
 </html>
